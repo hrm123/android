@@ -25,11 +25,17 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
+import com.google.ar.core.AugmentedImage;
+import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
+import com.google.ar.core.Point;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
+import com.google.ar.core.Trackable;
+import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.Scene;
@@ -129,16 +135,86 @@ public class VideoRecordingActivity extends AppCompatActivity
 
     private String m_Text = "";
 
+    private void renderInfoCard(String txt, Anchor anchor){
+
+        AnchorNode anchorNode = new AnchorNode(anchor);
+        anchorNode.setParent(arFragment.getArSceneView().getScene());
+        infoCard = new Node();
+        infoCard.setName("infocard" + (new Date()).getTime());
+        //infoCard.isTopLevel();
+        infoCard.setParent(anchorNode);
+        infoCard.setEnabled(true);
+        //float[] pos = { 0,0,-1 };
+        //float[] rotation = {0,0,0,1};
+        // Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
+        infoCard.setLocalPosition(new Vector3(0f,0f,-1f));
+
+        ViewRenderable.builder()
+                .setView(this, R.layout.name_info_view_v2)
+                .build()
+                .thenAccept(
+                        (note) -> {
+                            infoCard.setRenderable(note);
+                            TextView textView = (TextView) note.getView();
+                            //textView.setText("rammohan holagundi");
+                            textView.setText(txt);
+                            // int alpha = 70;
+                            //textView.setBackgroundColor(Color.argb(alpha, 132,154,201));
+                            // textView.setTextColor(ColorStateList.valueOf(Color.MAGENTA));
+
+                        })
+                .exceptionally(
+                        (throwable) -> {
+                            throw new AssertionError("Could not load plane card view.", throwable);
+                        });
+    }
+
     private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
+        Log.d(TAG, "handleOnTouch");
+
+        if (motionEvent.getAction()  != MotionEvent.ACTION_DOWN) {
+            return;
+        }
+        // First call ArFragment's listener to handle TransformableNodes.
+        arFragment.onPeekTouch(hitTestResult, motionEvent);
+        Frame frame = arFragment.getArSceneView().getArFrame();
+        Anchor anchor = arFragment.getArSceneView().getSession().createAnchor(
+                frame.getCamera().getDisplayOrientedPose());
+        Log.d(TAG, "act = " + motionEvent.getAction());
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter name")
+                // .setMessage("Are you sure you want to delete this entry?")
+                .setView(input)
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_Text = input.getText().toString();
+                        renderInfoCard(m_Text, anchor);
+                    }
+                })
+                // A null listener allows the button to dismiss the dialog and take no further action.
+                .setNegativeButton(android.R.string.no, null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+
+    }
+
+    private void handleOnTouch2(HitTestResult hitTestResult, MotionEvent motionEvent) {
         Log.d(TAG, "handleOnTouch");
         // First call ArFragment's listener to handle TransformableNodes.
         arFragment.onPeekTouch(hitTestResult, motionEvent);
 
+        /*
         //We are only interested in the ACTION_UP events - anything else just return
-        if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
+        if (motionEvent.getAction() != MotionEvent.ACTION_UP ||
+                motionEvent.getAction() != MotionEvent.ACTION_DOWN) {
             return;
         }
-
+         */
         // Check for touching a Sceneform node -- if yes user wants to delete it
         if (hitTestResult.getNode() != null) {
             Log.d(TAG, "handleOnTouch hitTestResult.getNode() != null");
@@ -190,6 +266,72 @@ public class VideoRecordingActivity extends AppCompatActivity
     }
     }
 
+    private void handleOnTouch1(HitResult hitTestResult, MotionEvent motionEvent) {
+        Log.d(TAG, "handleOnTouch");
+
+        //We are only interested in the ACTION_UP events - anything else just return
+        if (motionEvent.getAction() != MotionEvent.ACTION_UP ||
+            motionEvent.getAction() != MotionEvent.ACTION_DOWN) {
+            return;
+        }
+
+        // Check for touching a Sceneform node -- if yes user wants to delete it
+        if (hitTestResult.getTrackable() != null) {
+            Log.d(TAG, "handleOnTouch hitTestResult.getNode() != null");
+            Trackable trackable = hitTestResult.getTrackable();
+            if (trackable instanceof Plane && ((Plane)trackable).isPoseInPolygon(hitTestResult.getHitPose())) {
+                Plane plane = (Plane)trackable;
+
+                // Handle plane hits.
+                return;
+            } else if (trackable instanceof Point ) {
+                // Handle point hits
+                Point point = (Point) trackable;
+
+            } else if (trackable instanceof AugmentedImage) {
+                // Handle image hits.
+                AugmentedImage image = (AugmentedImage) trackable;
+            }
+        } else{
+            //add new node
+            Session session = arFragment.getArSceneView().getSession();
+            float[] pos = { 0,0,-1 };
+            float[] rotation = {0,0,0,1};
+            Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
+            AnchorNode anchorNode = new AnchorNode(anchor);
+
+            anchorNode.setParent(arFragment.getArSceneView().getScene());
+            infoCard = new Node();
+            infoCard.setName("infocard" + (new Date()).getTime());
+            //infoCard.isTopLevel();
+            infoCard.setParent(anchorNode);
+            infoCard.setEnabled(true);
+            infoCard.setLocalPosition (new Vector3(0f,0f,-1f));
+                            /*
+                    infoCard.setLocalPosition(new Vector3(hitResult.getHitPose().tx(),
+                            hitResult.getHitPose().ty(),
+                            hitResult.getHitPose().tz()));
+
+                             */
+            ViewRenderable.builder()
+                    .setView(this, R.layout.name_info_view_v2)
+                    .build()
+                    .thenAccept(
+                            (renderable) -> {
+                                infoCard.setRenderable(renderable);
+                                TextView textView = (TextView) renderable.getView();
+                                // textView.setText("rammohan holagundi");
+                                // textView.setTextColor(ColorStateList.valueOf(Color.MAGENTA));
+
+                            })
+                    .exceptionally(
+                            (throwable) -> {
+                                throw new AssertionError("Could not load plane card view.", throwable);
+                            });
+
+        }
+    }
+
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
     // CompletableFuture requires api level 24
@@ -210,18 +352,38 @@ public class VideoRecordingActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_ux);
         arFragment = (WritingArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
+
+        /*
         SceneView sceneView = arFragment.getArSceneView();
 
         sceneView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                handleOnTouch(hitTestResult, motionEvent);
+                // handleOnTouch(hitTestResult, motionEvent);
+                Frame frame = arFragment.getArSceneView().getArFrame();
+                if (frame != null && motionEvent != null && frame.getCamera().getTrackingState() == TrackingState.TRACKING) {
+                    for (HitResult hit : frame.hitTest(motionEvent)) {
+                        handleOnTouch1(hit, motionEvent);
+                    }
+                }
                 return true;
             }
         });
 
+         */
+
+
+        Scene scene = arFragment.getArSceneView().getScene();
 
         /*
+        scene.addOnUpdateListener(new Scene.OnUpdateListener() {
+            @Override
+            public void onUpdate(FrameTime frameTime) {
+
+            }
+        });
+        */
+        scene.setOnTouchListener(null);
         scene.setOnTouchListener(new Scene.OnTouchListener() {
             @Override
             public boolean onSceneTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
@@ -229,8 +391,8 @@ public class VideoRecordingActivity extends AppCompatActivity
                 return true;
             }
         });
-        */
-         */
+
+
 
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {

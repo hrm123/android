@@ -14,10 +14,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="100dp"
+    android:layout_height="20dp"
+    >
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nameInfoCard"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="100dp"
+    android:layout_height="20dp"
     android:layout_weight="1"
     android:background="@color/InfoCardColor"
     android:gravity="center"
@@ -25,4 +32,8 @@
     android:padding="6dp"
     android:text=""
     android:textColor="@color/InfoCardTextColor"
-    android:textAlignment="center" />
+    android:textAlignment="center"
+    app:layout_constraintWidth_max="wrap"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
