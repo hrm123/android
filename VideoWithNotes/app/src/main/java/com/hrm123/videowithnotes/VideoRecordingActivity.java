@@ -27,12 +27,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
+import com.google.ar.core.Pose;
+import com.google.ar.core.Session;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.Scene;
+import com.google.ar.sceneform.SceneView;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.ux.TransformableNode;
+
+import java.util.Date;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -43,7 +50,6 @@ public class VideoRecordingActivity extends AppCompatActivity
     private static final double MIN_OPENGL_VERSION = 3.0;
     private Node infoCard;
     private WritingArFragment arFragment;
-    private ModelRenderable andyRenderable;
     // Model loader class to avoid leaking the activity context.
     private ModelLoader modelLoader;
 
@@ -123,6 +129,67 @@ public class VideoRecordingActivity extends AppCompatActivity
 
     private String m_Text = "";
 
+    private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
+        Log.d(TAG, "handleOnTouch");
+        // First call ArFragment's listener to handle TransformableNodes.
+        arFragment.onPeekTouch(hitTestResult, motionEvent);
+
+        //We are only interested in the ACTION_UP events - anything else just return
+        if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
+            return;
+        }
+
+        // Check for touching a Sceneform node -- if yes user wants to delete it
+        if (hitTestResult.getNode() != null) {
+            Log.d(TAG, "handleOnTouch hitTestResult.getNode() != null");
+            Node hitNode = hitTestResult.getNode();
+
+            if (hitNode.getName().contains("infocard")) {
+                Toast.makeText(this, "Removing the Info Card", Toast.LENGTH_SHORT).show();
+                arFragment.getArSceneView().getScene().removeChild(hitNode);
+                hitNode.setParent(null);
+                hitNode = null;
+            }
+        } else{
+            //add new node
+            Session session = arFragment.getArSceneView().getSession();
+            float[] pos = { 0,0,-1 };
+            float[] rotation = {0,0,0,1};
+            Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
+            AnchorNode anchorNode = new AnchorNode(anchor);
+
+            anchorNode.setParent(arFragment.getArSceneView().getScene());
+            infoCard = new Node();
+            infoCard.setName("infocard" + (new Date()).getTime());
+            //infoCard.isTopLevel();
+            infoCard.setParent(anchorNode);
+            infoCard.setEnabled(true);
+            infoCard.setLocalPosition (new Vector3(0f,0f,-1f));
+                            /*
+                    infoCard.setLocalPosition(new Vector3(hitResult.getHitPose().tx(),
+                            hitResult.getHitPose().ty(),
+                            hitResult.getHitPose().tz()));
+
+                             */
+            ViewRenderable.builder()
+                    .setView(this, R.layout.name_info_view_v2)
+                    .build()
+                    .thenAccept(
+                            (renderable) -> {
+                                infoCard.setRenderable(renderable);
+                                TextView textView = (TextView) renderable.getView();
+                                // textView.setText("rammohan holagundi");
+                                // textView.setTextColor(ColorStateList.valueOf(Color.MAGENTA));
+
+                            })
+                    .exceptionally(
+                            (throwable) -> {
+                                throw new AssertionError("Could not load plane card view.", throwable);
+                            });
+
+    }
+    }
+
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
     // CompletableFuture requires api level 24
@@ -143,7 +210,27 @@ public class VideoRecordingActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_ux);
         arFragment = (WritingArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
+        SceneView sceneView = arFragment.getArSceneView();
 
+        sceneView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                handleOnTouch(hitTestResult, motionEvent);
+                return true;
+            }
+        });
+
+
+        /*
+        scene.setOnTouchListener(new Scene.OnTouchListener() {
+            @Override
+            public boolean onSceneTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
+                handleOnTouch(hitTestResult, motionEvent);
+                return true;
+            }
+        });
+        */
+         */
 
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
@@ -168,6 +255,7 @@ public class VideoRecordingActivity extends AppCompatActivity
                     AnchorNode anchorNode = new AnchorNode(anchor);
                     anchorNode.setParent(arFragment.getArSceneView().getScene());
                     infoCard = new Node();
+                    infoCard.setName("infocard" + (new Date()).getTime());
                     //infoCard.isTopLevel();
                     infoCard.setParent(anchorNode);
                     infoCard.setEnabled(true);
@@ -179,14 +267,14 @@ public class VideoRecordingActivity extends AppCompatActivity
 
                              */
                     ViewRenderable.builder()
-                            .setView(this, R.layout.name_info_view)
+                            .setView(this, R.layout.name_info_view_v2)
                             .build()
                             .thenAccept(
                                     (renderable) -> {
                                         infoCard.setRenderable(renderable);
                                         TextView textView = (TextView) renderable.getView();
-                                        textView.setText("rammohan holagundi");
-                                        textView.setTextColor(ColorStateList.valueOf(Color.MAGENTA));
+                                        //textView.setText("rammohan holagundi");
+                                        // textView.setTextColor(ColorStateList.valueOf(Color.MAGENTA));
 
                                     })
                             .exceptionally(
@@ -280,7 +368,7 @@ public class VideoRecordingActivity extends AppCompatActivity
 
     @Override
     public void setRenderable(ModelRenderable modelRenderable) {
-        andyRenderable = modelRenderable;
+        // andyRenderable = modelRenderable;
     }
 
     @Override
