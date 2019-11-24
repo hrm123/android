@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.AugmentedImage;
+import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
@@ -199,21 +200,43 @@ public class VideoRecordingActivity extends AppCompatActivity
                         });
     }
 
-    private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
+    private void handleOnTouchV0(HitTestResult hitTestResult, MotionEvent motionEvent) {
         Log.d(TAG, "handleOnTouch");
 
-        if (motionEvent.getAction()  != MotionEvent.ACTION_UP
+        if (motionEvent.getAction()  == MotionEvent.ACTION_UP
+                && motionEvent.getPointerCount() == 1
         ) {
-            long eventTime = motionEvent.getEventTime();
-            if(eventTime>0.4) {
+            long eventTime = motionEvent.getEventTime() - motionEvent.getDownTime();
+            if(eventTime < 100) { // if press was for less than 1 sec
                 return;
+            } else{
+                int i=0;
             }
+        } else{
+            return;
         }
         // First call ArFragment's listener to handle TransformableNodes.
         arFragment.onPeekTouch(hitTestResult, motionEvent);
         Frame frame = arFragment.getArSceneView().getArFrame();
-        Anchor anchor = arFragment.getArSceneView().getSession().createAnchor(
-                frame.getCamera().getDisplayOrientedPose());
+        Session session = arFragment.getArSceneView().getSession();
+
+        session.getConfig().setPlaneFindingMode(Config.PlaneFindingMode.DISABLED); // no need to find planes since we write nameplate in spsecific position in air
+        /*
+        //works kind of okay .. trying better solutions
+        Anchor anchor = session.createAnchor(
+                frame.getCamera().getDisplayOrientedPose());//works even better
+        Anchor anchor = session.createAnchor(
+                frame.getCamera().getDisplayOrientedPose()
+                        .compose(Pose.makeTranslation(0, 0, -0.3f))
+                );
+         */
+
+        Anchor anchor = session.createAnchor(
+                frame.getCamera().getDisplayOrientedPose()
+                        .compose(Pose.makeTranslation(0, -0.2f, -0.3f))
+        );
+          //              .extractTranslation());
+
         Log.d(TAG, "act = " + motionEvent.getAction());
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -426,13 +449,13 @@ public class VideoRecordingActivity extends AppCompatActivity
         scene.setOnTouchListener(new Scene.OnTouchListener() {
             @Override
             public boolean onSceneTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
-                handleOnTouch(hitTestResult, motionEvent);
-                return true;
+                handleOnTouchV0(hitTestResult, motionEvent);
+                return true; // return false means new touch events are not generated
             }
         });
 
 
-
+/*
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
                     final EditText input = new EditText(this);
@@ -461,12 +484,12 @@ public class VideoRecordingActivity extends AppCompatActivity
                     infoCard.setParent(anchorNode);
                     infoCard.setEnabled(true);
                     infoCard.setLocalPosition (new Vector3(0f,0f,-1f));
-                            /*
-                    infoCard.setLocalPosition(new Vector3(hitResult.getHitPose().tx(),
-                            hitResult.getHitPose().ty(),
-                            hitResult.getHitPose().tz()));
 
-                             */
+                    //infoCard.setLocalPosition(new Vector3(hitResult.getHitPose().tx(),
+                            //hitResult.getHitPose().ty(),
+                            //hitResult.getHitPose().tz()));
+
+
                     ViewRenderable.builder()
                             .setView(this, R.layout.name_info_view_v2)
                             .build()
@@ -483,7 +506,7 @@ public class VideoRecordingActivity extends AppCompatActivity
                                         throw new AssertionError("Could not load plane card view.", throwable);
                                     });
                 });
-
+*/
         // Initialize the VideoRecorder.
         videoRecorder = new VideoRecorder();
         int orientation = getResources().getConfiguration().orientation;
