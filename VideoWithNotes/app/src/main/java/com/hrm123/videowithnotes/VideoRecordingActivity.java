@@ -15,10 +15,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +47,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.ux.TransformableNode;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -135,6 +138,31 @@ public class VideoRecordingActivity extends AppCompatActivity
 
     private String m_Text = "";
 
+
+    private ArrayList<View> getAllChildren(View v) {
+
+        if (!(v instanceof ViewGroup)) {
+            ArrayList<View> viewArrayList = new ArrayList<View>();
+            viewArrayList.add(v);
+            return viewArrayList;
+        }
+
+        ArrayList<View> result = new ArrayList<View>();
+
+        ViewGroup vg = (ViewGroup) v;
+        for (int i = 0; i < vg.getChildCount(); i++) {
+
+            View child = vg.getChildAt(i);
+
+            ArrayList<View> viewArrayList = new ArrayList<View>();
+            viewArrayList.add(v);
+            viewArrayList.addAll(getAllChildren(child));
+
+            result.addAll(viewArrayList);
+        }
+        return result;
+    }
+
     private void renderInfoCard(String txt, Anchor anchor){
 
         AnchorNode anchorNode = new AnchorNode(anchor);
@@ -155,7 +183,9 @@ public class VideoRecordingActivity extends AppCompatActivity
                 .thenAccept(
                         (note) -> {
                             infoCard.setRenderable(note);
-                            TextView textView = (TextView) note.getView();
+                            TextView textView =  note.getView().findViewById(R.id.nameInfoCard);
+
+
                             //textView.setText("rammohan holagundi");
                             textView.setText(txt);
                             // int alpha = 70;
@@ -172,8 +202,12 @@ public class VideoRecordingActivity extends AppCompatActivity
     private void handleOnTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
         Log.d(TAG, "handleOnTouch");
 
-        if (motionEvent.getAction()  != MotionEvent.ACTION_DOWN) {
-            return;
+        if (motionEvent.getAction()  != MotionEvent.ACTION_UP
+        ) {
+            long eventTime = motionEvent.getEventTime();
+            if(eventTime>0.4) {
+                return;
+            }
         }
         // First call ArFragment's listener to handle TransformableNodes.
         arFragment.onPeekTouch(hitTestResult, motionEvent);
@@ -233,9 +267,14 @@ public class VideoRecordingActivity extends AppCompatActivity
             float[] rotation = {0,0,0,1};
             Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
             AnchorNode anchorNode = new AnchorNode(anchor);
+            //TransformableNode tanchorNode =
+                    //new TransformableNode(arFragment.getTransformationSystem());
+            // tanchorNode.setParent(anchorNode);
 
             anchorNode.setParent(arFragment.getArSceneView().getScene());
-            infoCard = new Node();
+            // infoCard = new Node();
+            infoCard =
+                    new TransformableNode(arFragment.getTransformationSystem());
             infoCard.setName("infocard" + (new Date()).getTime());
             //infoCard.isTopLevel();
             infoCard.setParent(anchorNode);
