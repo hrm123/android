@@ -1,7 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.hrm123.videowithnotes.MainActivity">
+    tools:context="com.hrm123.videowithnotes.MainActivity"
+    tools:showIn="navigation_view">
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
