@@ -19,12 +19,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".VideoRecordingActivity">
+    >
 
 
     <fragment
         android:id="@+id/ux_fragment"
-        class="com.hrm123.videowithnotes.WritingArFragment"
+        class="com.hrm123.videowithnotes1.WritingArFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
