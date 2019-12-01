@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.ar.sceneform.plugin'
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 29
@@ -21,7 +23,60 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+    sourceSets {
+        main {
+            proto {
+                srcDir 'src/main/proto'
+            }
+            java {
+                srcDir 'src/main/java'
+            }
+
+        }
+    }
+
+
+    protobuf {
+        // Configure the protoc executable
+        protoc {
+            // Download from repositories
+            artifact = 'com.google.protobuf:protoc:3.10.0'
+        }
+        plugins {
+            javalite {
+                artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+            }
+            grpc {
+                artifact = 'io.grpc:protoc-gen-grpc-java:1.25.0' // CURRENT_GRPC_VERSION
+            }
+        }
+        // generatedFilesBaseDir = '$projectDir/src/gen'
+        generateProtoTasks {
+            // generatedFilesBaseDir = '$projectDir/src/main/java/com/hrm123/videowithnotes1/gen'
+            // all() returns the collection of all protoc tasks
+            all().each { task ->
+                // Here you can configure the task
+                //task.builtins {
+                    //remove java
+                //}
+                task.plugins {
+                    javalite { }
+                    grpc {
+                        option 'lite'
+                    }
+                }
+            }
+
+            // In addition to all(), you may get the task collection by various
+            // criteria:
+
+            // (Java only) returns tasks for a sourceSet
+            //ofSourceSet('main')
+
+        }
+    }
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -40,6 +95,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services:12.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'io.grpc:grpc-okhttp:1.25.0' // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-protobuf-lite:1.25.0' // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-stub:1.25.0' // CURRENT_GRPC_VERSION
+    implementation 'javax.annotation:javax.annotation-api:1.2'
+    // implementation 'com.google.protobuf:protobuf-lite:3.0.0'
 }
-
-apply plugin: 'com.google.ar.sceneform.plugin'

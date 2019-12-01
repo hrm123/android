@@ -1,0 +1,37 @@
+﻿syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.hrm123.videowithnotes1";
+option java_outer_classname = "NextGenVideoSvc";
+option objc_class_prefix = "NGVS";
+
+package videowithnotes1;
+
+message Chunk {
+	bytes PayLoad = 1;
+}
+
+message SvcResponse {
+	string Message = 1;
+	string Code = 2;
+}
+
+message FileReq {
+	string fullfilename=1;
+}
+
+message FileListResp{
+	repeated FileName files = 1;
+}
+
+message FileName{
+	string FileName = 1;
+}
+
+message FileListReq {}
+
+service NextGenVideoService {
+	rpc SaveMp4File(stream Chunk) returns (SvcResponse);
+	rpc GetFile(FileReq) returns (stream Chunk);
+	rpc ListFiles(FileListReq) returns (FileListResp);
+}

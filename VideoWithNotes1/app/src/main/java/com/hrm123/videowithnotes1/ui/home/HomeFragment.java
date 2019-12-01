@@ -29,6 +29,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
@@ -43,11 +46,20 @@ import com.google.ar.sceneform.Scene;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
+import com.google.protobuf.ByteString;
+import com.hrm123.videowithnotes1.Chunk;
 import com.hrm123.videowithnotes1.ModelLoader;
+import com.hrm123.videowithnotes1.NextGenVideoSvc;
+import com.hrm123.videowithnotes1.NextGenVideoSvcGrpc;
 import com.hrm123.videowithnotes1.R;
+import com.hrm123.videowithnotes1.SvcResponse;
 import com.hrm123.videowithnotes1.VideoRecorder;
 import com.hrm123.videowithnotes1.WritingArFragment;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -157,7 +169,73 @@ public class HomeFragment extends Fragment
             values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
             values.put(MediaStore.Video.Media.DATA, videoPath);
             getContext().getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+
+            // save to cloud
+            SaveRecToCloud(videoPath);
+
+
         }
+    }
+
+    private void SaveRecToCloud(String videoPath){
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                "3.134.87.107", 33333 )
+                .usePlaintext()
+                .build();
+        String status = "processing";
+        NextGenVideoSvcGrpc.NextGenVideoServiceStub stub = NextGenVideoSvcGrpc.newStub(channel);
+        StreamObserver<Chunk> resp = stub.saveMp4File(new StreamObserver<SvcResponse>() {
+            @Override
+            public void onNext(SvcResponse value) {
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                String status = "error";
+            }
+
+            @Override
+            public void onCompleted() {
+                String status = "completed";
+            }
+        });
+
+        BufferedInputStream in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(videoPath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        byte[] buffer = new byte[1024];
+        Chunk.Builder chunkBuilder = Chunk.newBuilder();
+        int tmp = 0;
+        int totalBytes = 0;
+        try {
+            int n = 0;
+            while ((tmp = in.read(buffer, 0, 1024)) > 0) {
+                /* do whatever you want with buffer here */
+                totalBytes += tmp;
+                ByteString byteString = ByteString.copyFrom(buffer, 0, tmp);
+                // File m = builder.setBinary(byteString).build();
+
+                resp.onNext(chunkBuilder.setPayLoad(byteString).build());
+            }
+            resp.onCompleted();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        finally { // always close input stream
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void handleOnTouchV0(HitTestResult hitTestResult, MotionEvent motionEvent) {
