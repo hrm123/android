@@ -1,18 +1,18 @@
 ﻿syntax = "proto3";
 
- option java_multiple_files = true;
- option java_package = "com.hrm123.videowithnotes1";
- option java_outer_classname = "NextGenVideoSvc";
- option objc_class_prefix = "NGVS";
- package videowithnotes1;
+ //option java_multiple_files = true;
+ //option java_package = "com.hrm123.videowithnotes1";
+ //option java_outer_classname = "NextGenVideoSvc";
+ //option objc_class_prefix = "NGVS";
+ //package videowithnotes1;
 
 
 
 
-// option java_multiple_files = true;
-// option java_package = "com.hrm123.nextgenvideosvc";
-//option java_outer_classname = "NextGenVideoSvc";
-// option objc_class_prefix = "NGVS";
+option java_multiple_files = true;
+option java_package = "com.hrm123.nextgenvideosvc";
+option java_outer_classname = "NextGenVideoSvc";
+option objc_class_prefix = "NGVS";
 
 // package com.hrm123.nextgenvideo;
 

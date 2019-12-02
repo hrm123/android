@@ -29,8 +29,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.MethodDescriptor;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -47,12 +52,19 @@ import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.protobuf.ByteString;
-import com.hrm123.videowithnotes1.Chunk;
+import com.hrm123.nextgenvideosvc.Chunk;
+import com.hrm123.nextgenvideosvc.FileListReq;
+import com.hrm123.nextgenvideosvc.FileListResp;
+import com.hrm123.nextgenvideosvc.FileName;
+import com.hrm123.nextgenvideosvc.NextGenVidSvcGrpc;
+import com.hrm123.nextgenvideosvc.NextGenVideoServiceGrpc;
+import com.hrm123.nextgenvideosvc.SvcResponse;
+//import com.hrm123.videowithnotes1.Chunk;
 import com.hrm123.videowithnotes1.ModelLoader;
-import com.hrm123.videowithnotes1.NextGenVideoSvc;
-import com.hrm123.videowithnotes1.NextGenVideoSvcGrpc;
+//import com.hrm123.videowithnotes1.NextGenVideoSvc;
+// import com.hrm123.videowithnotes1.NextGenVideoSvcGrpc;
 import com.hrm123.videowithnotes1.R;
-import com.hrm123.videowithnotes1.SvcResponse;
+//import com.hrm123.videowithnotes1.SvcResponse;
 import com.hrm123.videowithnotes1.VideoRecorder;
 import com.hrm123.videowithnotes1.WritingArFragment;
 
@@ -62,6 +74,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class HomeFragment extends Fragment
         implements ModelLoader.ModelLoaderCallbacks{
@@ -96,6 +109,11 @@ public class HomeFragment extends Fragment
         if(!isWriteStoragePermissionGranted()){
             return root;
         }
+
+        GetFileList();
+        // SaveRecToCloud("/storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4");
+
+
         /*
         final TextView textView = root.findViewById(R.id.text_home);
         homeViewModel.getText().observe(this, new Observer<String>() {
@@ -177,17 +195,66 @@ public class HomeFragment extends Fragment
         }
     }
 
-    private void SaveRecToCloud(String videoPath){
+
+    private List<FileName> GetFileList1(){
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
+
+        NextGenVidSvcGrpc.NextGenVideoServiceStub stub = NextGenVidSvcGrpc.newStub(channel);
+        FileListReq.Builder reqBuilder = FileListReq.newBuilder();
+        NextGenVidSvcGrpc.NextGenVideoServiceBlockingStub blockingStub =  NextGenVidSvcGrpc.newBlockingStub(channel);
+        FileListResp files =  blockingStub.listFiles(reqBuilder.build());
+        return files.getFilesList();
+
+    }
+
+    private List<FileName> GetFileList(){
+        /*
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                "3.134.87.107", 33333 )
+                .usePlaintext()
+                .build();
+
+         */
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                "192.168.1.39", 33333 )
+                .usePlaintext()
+                .build();
+
+        try {
+            NextGenVideoServiceGrpc.NextGenVideoServiceStub stub = NextGenVideoServiceGrpc.newStub(channel);
+            FileListReq.Builder reqBuilder = FileListReq.newBuilder();
+            NextGenVideoServiceGrpc.NextGenVideoServiceBlockingStub blockingStub = NextGenVideoServiceGrpc.newBlockingStub(channel);
+            FileListResp files = blockingStub.listFiles(reqBuilder.build());
+            return files.getFilesList();
+        }
+        catch(Exception ex){
+            return null;
+        }
+
+    }
+
+    private void SaveRecToCloud(String videoPath){
+
+        // videoPath ->   /storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                "172.17.198.241", 33333 )
+                .usePlaintext()
+                .build();
+
+
         String status = "processing";
-        NextGenVideoSvcGrpc.NextGenVideoServiceStub stub = NextGenVideoSvcGrpc.newStub(channel);
-        StreamObserver<Chunk> resp = stub.saveMp4File(new StreamObserver<SvcResponse>() {
+        // NextGenVideoSvcGrpc.NextGenVideoServiceStub stub = NextGenVideoSvcGrpc.newStub(channel);
+        NextGenVidSvcGrpc.NextGenVideoServiceStub stub = NextGenVidSvcGrpc.newStub(channel);
+                StreamObserver<Chunk> resp =
+                stub.saveMp4File(new StreamObserver<SvcResponse>() {
             @Override
             public void onNext(SvcResponse value) {
-
+                String status = "running";
             }
 
             @Override
