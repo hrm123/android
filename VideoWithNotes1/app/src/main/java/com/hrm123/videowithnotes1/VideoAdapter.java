@@ -1,6 +1,8 @@
 package com.hrm123.videowithnotes1;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import java.util.List;
@@ -37,9 +40,23 @@ public class VideoAdapter extends ArrayAdapter<Video> {
                     R.layout.video_row, null);
             holder = new ViewHolder();
 
-            holder.videoView = (VideoView) convertView
-                    .findViewById(R.id.videoView);
+            // holder.videoView = (VideoView) convertView
+               //     .findViewById(R.id.videoView);
 
+            holder.textView = (TextView) convertView
+                 .findViewById(R.id.videoText);
+            holder.textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TextView tv = (TextView) view;
+                    String txt = tv.getText().toString();
+
+                    Intent intent = new Intent(getContext(),FullScreenVideoActivity.class);
+                    intent.putExtra("vurl", txt);
+                    intent.putExtra("fullScreen","y");
+                    ((Activity)getContext()).startActivity(intent);
+                }
+            });
             convertView.setTag(holder);
         } else {
 
@@ -47,7 +64,14 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 
         }
 
+        Video video = mVideos.get(position);
+        //play video using android api, when video view is clicked.
+        String url = video.getVideoUrl(); // your URL here
+        // Uri videoUri = Uri.parse(url);
+        holder.textView.setText(url);
+
         /***get clicked view and play video url at this position**/
+        /*
         try {
             Video video = mVideos.get(position);
             //play video using android api, when video view is clicked.
@@ -67,13 +91,15 @@ public class VideoAdapter extends ArrayAdapter<Video> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+         */
 
         return convertView;
     }
 
     public static class ViewHolder {
-        VideoView videoView;
+        // VideoView videoView;
+        TextView textView;
+
 
     }
 }

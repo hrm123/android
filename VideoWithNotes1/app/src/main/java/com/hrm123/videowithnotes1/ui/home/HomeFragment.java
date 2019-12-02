@@ -110,7 +110,7 @@ public class HomeFragment extends Fragment
             return root;
         }
 
-        GetFileList();
+        // GetFileList();
         // SaveRecToCloud("/storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4");
 
 
