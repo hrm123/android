@@ -93,6 +93,7 @@ public class VideoRecordFragment extends Fragment
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
 
+
         if (!checkIsSupportedDeviceOrFinish(getActivity())) {
             return root;
         }
@@ -104,7 +105,7 @@ public class VideoRecordFragment extends Fragment
             return root;
         }
 
-        // GetFileList();
+        List<FileName> files = GetFileList();
         // SaveRecToCloud("/storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4");
 
 
@@ -120,6 +121,12 @@ public class VideoRecordFragment extends Fragment
         arFragment = (WritingArFragment) getChildFragmentManager().findFragmentById(R.id.ux_fragment);
         Scene scene = arFragment.getArSceneView().getScene();
         scene.setOnTouchListener(null);
+        if (arFragment != null) {
+            // hiding the plane discovery
+            arFragment.getPlaneDiscoveryController().hide();
+            arFragment.getPlaneDiscoveryController().setInstructionView(null);
+            arFragment.getArSceneView().getPlaneRenderer().setEnabled(false);
+        }
         scene.setOnTouchListener(new Scene.OnTouchListener() {
             @Override
             public boolean onSceneTouch(HitTestResult hitTestResult, MotionEvent motionEvent) {
@@ -205,19 +212,19 @@ public class VideoRecordFragment extends Fragment
     }
 
     private List<FileName> GetFileList(){
-        /*
+
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
-         */
 
+/*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 "192.168.1.39", 33333 )
                 .usePlaintext()
                 .build();
-
+*/
         try {
             NextGenVideoServiceGrpc.NextGenVideoServiceStub stub = NextGenVideoServiceGrpc.newStub(channel);
             FileListReq.Builder reqBuilder = FileListReq.newBuilder();
@@ -235,11 +242,19 @@ public class VideoRecordFragment extends Fragment
 
         // videoPath ->   /storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4
 
+        /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 "172.17.198.241", 33333 )
                 .usePlaintext()
                 .build();
 
+         */
+
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                "3.134.87.107", 33333 )
+                .usePlaintext()
+                .build();
 
         String status = "processing";
         // NextGenVideoSvcGrpc.NextGenVideoServiceStub stub = NextGenVideoSvcGrpc.newStub(channel);
