@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -88,6 +89,7 @@ public class VideoRecordFragment extends Fragment
 
     // The UI to record.
     private FloatingActionButton recordButton;
+    private FloatingActionButton toCloudButton;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -148,6 +150,12 @@ public class VideoRecordFragment extends Fragment
         recordButton.setOnClickListener(this::toggleRecording);
         recordButton.setEnabled(true);
         recordButton.setImageResource(R.drawable.round_videocam);
+
+
+        toCloudButton = root.findViewById(R.id.tocloud);
+        toCloudButton.setOnClickListener(this::toggleRecordingToCloud);
+        toCloudButton.setEnabled(true);
+
         return root;
     }
 
@@ -163,6 +171,12 @@ public class VideoRecordFragment extends Fragment
         toast.show();
         Log.e(TAG, "Unable to load andy renderable", throwable);
     }
+
+
+
+
+
+
     /*
      * Used as a handler for onClick, so the signature must match onClickListener.
      */
@@ -180,8 +194,47 @@ public class VideoRecordFragment extends Fragment
         boolean recording = videoRecorder.onToggleRecord();
         if (recording) {
             recordButton.setImageResource(R.drawable.round_stop);
+            toCloudButton.setEnabled(false);
         } else {
             recordButton.setImageResource(R.drawable.round_videocam);
+            String videoPath = videoRecorder.getVideoPath().getAbsolutePath();
+            Toast.makeText(getActivity(), "Video saved: " + videoPath, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Video saved: " + videoPath);
+
+            // Send  notification of updated content.
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video");
+            values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            values.put(MediaStore.Video.Media.DATA, videoPath);
+            getContext().getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+
+            // save to cloud
+            // SaveRecToCloud(videoPath);
+
+
+        }
+    }
+
+    /*
+     * Used as a handler for onClick, so the signature must match onClickListener.
+     */
+    private void toggleRecordingToCloud(View unusedView) {
+        if (!arFragment.hasWritePermission()) {
+            Log.e(TAG, "Video recording requires the WRITE_EXTERNAL_STORAGE permission");
+            Toast.makeText(
+                    getActivity(),
+                    "Video recording requires the WRITE_EXTERNAL_STORAGE permission",
+                    Toast.LENGTH_LONG)
+                    .show();
+            arFragment.launchPermissionSettings();
+            return;
+        }
+        boolean recording = videoRecorder.onToggleRecord();
+        if (recording) {
+            toCloudButton.setImageResource(R.drawable.round_stop);
+            recordButton.setEnabled(false);
+        } else {
+            toCloudButton.setImageResource(android.R.drawable.ic_dialog_email);
             String videoPath = videoRecorder.getVideoPath().getAbsolutePath();
             Toast.makeText(getActivity(), "Video saved: " + videoPath, Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Video saved: " + videoPath);
@@ -200,10 +253,9 @@ public class VideoRecordFragment extends Fragment
         }
     }
 
-
     private List<FileName> GetFileList1(){
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.135.87.107", 33333 )
+                "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -218,7 +270,7 @@ public class VideoRecordFragment extends Fragment
     private List<FileName> GetFileList(){
         /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.135.87.107", 33333 )
+                "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -226,7 +278,7 @@ public class VideoRecordFragment extends Fragment
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 //"192.168.1.39", 33333 )
-                "3.135.87.107", 33333)
+                "3.134.87.107", 33333)
                 .usePlaintext()
                 .build();
 
@@ -257,7 +309,7 @@ public class VideoRecordFragment extends Fragment
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 //"192.168.1.39", 33333 )
-                "3.135.87.107", 33333)
+                "3.134.87.107", 33333)
                 .usePlaintext()
                 .build();
         final CountDownLatch finishLatch = new CountDownLatch(1);
