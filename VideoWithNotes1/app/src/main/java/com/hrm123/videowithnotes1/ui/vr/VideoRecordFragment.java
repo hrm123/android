@@ -228,7 +228,7 @@ public class VideoRecordFragment extends Fragment
         try {
             NextGenVideoServiceGrpc.NextGenVideoServiceStub stub = NextGenVideoServiceGrpc.newStub(channel);
             FileListReq.Builder reqBuilder = FileListReq.newBuilder();
-            NextGenVideoServiceGrpc.NextGenVideoServiceBlockingStub blockingStub = NextGenVideoServiceGrpc.newBlockingStub(channel);
+            NextGenVidSvcGrpc.NextGenVideoServiceBlockingStub blockingStub = NextGenVidSvcGrpc.newBlockingStub(channel);
             FileListResp files = blockingStub.listFiles(reqBuilder.build());
             return files.getFilesList();
         }
