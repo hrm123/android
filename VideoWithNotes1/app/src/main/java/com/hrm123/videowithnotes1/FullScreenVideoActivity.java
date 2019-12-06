@@ -1,6 +1,7 @@
 package com.hrm123.videowithnotes1;
 
 
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Display;
@@ -38,6 +39,13 @@ public class FullScreenVideoActivity extends AppCompatActivity {
         Uri videoUri = Uri.parse(vurl);
 
         videoView.setVideoURI(videoUri);
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setLooping(true);
+                videoView.start();
+            }
+        });
 
         if(isLandScape()){
             mediaController = new FullScreenMediaController(this);
@@ -47,7 +55,7 @@ public class FullScreenVideoActivity extends AppCompatActivity {
         mediaController.setAnchorView(videoView);
 
         videoView.setMediaController(mediaController);
-        videoView.start();
+        // videoView.start();
     }
 
 
