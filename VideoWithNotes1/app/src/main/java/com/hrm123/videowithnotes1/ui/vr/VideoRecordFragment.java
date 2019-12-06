@@ -94,14 +94,14 @@ public class VideoRecordFragment extends Fragment
 
 
         if (!checkIsSupportedDeviceOrFinish(getActivity())) {
-            return root;
+            // return root;
         }
 
         if(!isReadStoragePermissionGranted()){
-            return root;
+            // return root;
         }
         if(!isWriteStoragePermissionGranted()){
-            return root;
+            // return root;
         }
 
         // GetFileList();
@@ -192,7 +192,7 @@ public class VideoRecordFragment extends Fragment
 
     private List<FileName> GetFileList1(){
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.134.87.107", 33333 )
+                "3.135.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -207,18 +207,20 @@ public class VideoRecordFragment extends Fragment
     private List<FileName> GetFileList(){
         /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.134.87.107", 33333 )
+                "3.135.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
          */
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "192.168.1.39", 33333 )
+                //"192.168.1.39", 33333 )
+                "3.135.87.107", 33333)
                 .usePlaintext()
                 .build();
 
         try {
+
             NextGenVideoServiceGrpc.NextGenVideoServiceStub stub = NextGenVideoServiceGrpc.newStub(channel);
             FileListReq.Builder reqBuilder = FileListReq.newBuilder();
             NextGenVideoServiceGrpc.NextGenVideoServiceBlockingStub blockingStub = NextGenVideoServiceGrpc.newBlockingStub(channel);
