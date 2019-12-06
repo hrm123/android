@@ -69,6 +69,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class VideoRecordFragment extends Fragment
         implements ModelLoader.ModelLoaderCallbacks{
@@ -94,17 +96,26 @@ public class VideoRecordFragment extends Fragment
 
 
         if (!checkIsSupportedDeviceOrFinish(getActivity())) {
-            // return root;
+            return root;
         }
 
         if(!isReadStoragePermissionGranted()){
-            // return root;
+            return root;
         }
         if(!isWriteStoragePermissionGranted()){
-            // return root;
+            return root;
         }
 
-        // GetFileList();
+        arFragment = (WritingArFragment) getChildFragmentManager().findFragmentById(R.id.ux_fragment);
+
+        if (arFragment != null) {
+            // hiding the plane discovery
+            arFragment.getPlaneDiscoveryController().hide();
+            arFragment.getPlaneDiscoveryController().setInstructionView(null);
+            arFragment.getArSceneView().getPlaneRenderer().setEnabled(false);
+        }
+
+        // List<FileName> files  = GetFileList();
         // SaveRecToCloud("/storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4");
 
 
@@ -117,7 +128,7 @@ public class VideoRecordFragment extends Fragment
             }
         });
         */
-        arFragment = (WritingArFragment) getChildFragmentManager().findFragmentById(R.id.ux_fragment);
+
         Scene scene = arFragment.getArSceneView().getScene();
         scene.setOnTouchListener(null);
         scene.setOnTouchListener(new Scene.OnTouchListener() {
@@ -237,17 +248,25 @@ public class VideoRecordFragment extends Fragment
 
         // videoPath ->   /storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4
 
+        /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 "172.17.198.241", 33333 )
                 .usePlaintext()
                 .build();
+        */
 
-
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                //"192.168.1.39", 33333 )
+                "3.135.87.107", 33333)
+                .usePlaintext()
+                .build();
+        final CountDownLatch finishLatch = new CountDownLatch(1);
         String status = "processing";
         // NextGenVideoSvcGrpc.NextGenVideoServiceStub stub = NextGenVideoSvcGrpc.newStub(channel);
-        NextGenVidSvcGrpc.NextGenVideoServiceStub stub = NextGenVidSvcGrpc.newStub(channel);
-                StreamObserver<Chunk> resp =
+        NextGenVideoServiceGrpc.NextGenVideoServiceStub stub = NextGenVideoServiceGrpc.newStub(channel);
+        StreamObserver<Chunk> resp =
                 stub.saveMp4File(new StreamObserver<SvcResponse>() {
+
             @Override
             public void onNext(SvcResponse value) {
                 String status = "running";
@@ -256,11 +275,13 @@ public class VideoRecordFragment extends Fragment
             @Override
             public void onError(Throwable t) {
                 String status = "error";
+                finishLatch.countDown();
             }
 
             @Override
             public void onCompleted() {
                 String status = "completed";
+                finishLatch.countDown();
             }
         });
 
@@ -285,8 +306,10 @@ public class VideoRecordFragment extends Fragment
                 // File m = builder.setBinary(byteString).build();
 
                 resp.onNext(chunkBuilder.setPayLoad(byteString).build());
+
             }
             resp.onCompleted();
+            finishLatch.await(1, TimeUnit.MINUTES);
         }
         catch(Exception e) {
             e.printStackTrace();

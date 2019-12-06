@@ -51,8 +51,9 @@ public class VideoAdapter extends ArrayAdapter<Video> {
                     TextView tv = (TextView) view;
                     String txt = tv.getText().toString();
 
+                    String base = "http://3.135.87.107/";
                     Intent intent = new Intent(getContext(),FullScreenVideoActivity.class);
-                    intent.putExtra("vurl", txt);
+                    intent.putExtra("vurl", base + txt);
                     intent.putExtra("fullScreen","y");
                     ((Activity)getContext()).startActivity(intent);
                 }
