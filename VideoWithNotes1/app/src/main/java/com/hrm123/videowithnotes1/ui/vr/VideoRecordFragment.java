@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,11 +36,14 @@ import io.grpc.stub.StreamObserver;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
+import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
+import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.Scene;
@@ -55,6 +59,7 @@ import com.hrm123.nextgenvideosvc.NextGenVidSvcGrpc;
 import com.hrm123.nextgenvideosvc.NextGenVideoServiceGrpc;
 import com.hrm123.nextgenvideosvc.SvcResponse;
 //import com.hrm123.videowithnotes1.Chunk;
+import com.hrm123.videowithnotes1.AugmentedImageNode;
 import com.hrm123.videowithnotes1.ModelLoader;
 //import com.hrm123.videowithnotes1.NextGenVideoSvc;
 // import com.hrm123.videowithnotes1.NextGenVideoSvcGrpc;
@@ -68,14 +73,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class VideoRecordFragment extends Fragment
         implements ModelLoader.ModelLoaderCallbacks{
-
+    private ImageView fitToScanView;
     private VRViewModel homeViewModel;
     private static final String TAG = VideoRecordFragment.class.getSimpleName();
     private static final double MIN_OPENGL_VERSION = 3.0;
@@ -86,6 +94,9 @@ public class VideoRecordFragment extends Fragment
 
     // VideoRecorder encapsulates all the video recording functionality.
     private VideoRecorder videoRecorder;
+    // Augmented image and its associated center pose anchor, keyed by the augmented image in
+    // the database.
+    private final Map<AugmentedImage, AugmentedImageNode> augmentedImageMap = new HashMap<>();
 
     // The UI to record.
     private FloatingActionButton recordButton;
@@ -95,7 +106,7 @@ public class VideoRecordFragment extends Fragment
         homeViewModel =
                 ViewModelProviders.of(this).get(VRViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-
+        fitToScanView = getActivity().findViewById(R.id.image_view_fit_to_scan);
 
         if (!checkIsSupportedDeviceOrFinish(getActivity())) {
             return root;
@@ -116,7 +127,7 @@ public class VideoRecordFragment extends Fragment
             arFragment.getPlaneDiscoveryController().setInstructionView(null);
             arFragment.getArSceneView().getPlaneRenderer().setEnabled(false);
         }
-
+        arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
         // List<FileName> files  = GetFileList();
         // SaveRecToCloud("/storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4");
 
@@ -157,6 +168,50 @@ public class VideoRecordFragment extends Fragment
         toCloudButton.setEnabled(true);
 
         return root;
+    }
+
+    /**
+     * Registered with the Sceneform Scene object, this method is called at the start of each frame.
+     *
+     * @param frameTime - time since last frame.
+     */
+    private void onUpdateFrame(FrameTime frameTime) {
+        Frame frame = arFragment.getArSceneView().getArFrame();
+
+        // If there is no frame or ARCore is not tracking yet, just return.
+        if (frame == null || frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
+            return;
+        }
+
+        Collection<AugmentedImage> updatedAugmentedImages =
+                frame.getUpdatedTrackables(AugmentedImage.class);
+        for (AugmentedImage augmentedImage : updatedAugmentedImages) {
+            switch (augmentedImage.getTrackingState()) {
+                case PAUSED:
+                    // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
+                    // but not yet tracked.
+                    String text = "Detected Image " + augmentedImage.getIndex();
+                    SnackbarHelper.getInstance().showMessage(this.getActivity(), text);
+                    break;
+
+                case TRACKING:
+                    // Have to switch to UI Thread to update View.
+                    fitToScanView.setVisibility(View.GONE);
+
+                    // Create a new anchor for newly found images.
+                    if (!augmentedImageMap.containsKey(augmentedImage)) {
+                        AugmentedImageNode node = new AugmentedImageNode(this.getActivity());
+                        node.setImage(augmentedImage);
+                        augmentedImageMap.put(augmentedImage, node);
+                        arFragment.getArSceneView().getScene().addChild(node);
+                    }
+                    break;
+
+                case STOPPED:
+                    augmentedImageMap.remove(augmentedImage);
+                    break;
+            }
+        }
     }
 
     @Override
@@ -375,6 +430,8 @@ public class VideoRecordFragment extends Fragment
         }
 
     }
+
+
 
     private void handleOnTouchV0(HitTestResult hitTestResult, MotionEvent motionEvent) {
         Log.d(TAG, "handleOnTouch");
