@@ -1,2 +1,2 @@
-http://3.135.87.107/vidann.mp4
-http://3.135.87.107/ar/vids.html
+http://ec2-3-135-87-107.us-east-2.compute.amazonaws.com/vidann.mp4
+http://ec2-3-135-87-107.us-east-2.compute.amazonaws.com/ar/vids.html
