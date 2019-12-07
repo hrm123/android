@@ -14,6 +14,7 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,6 +37,22 @@ public class FullScreenVideoActivity extends AppCompatActivity {
             System.out.println("Downloading");
             URL url = new URL(f_url[0]);
 
+            String fileName =
+                    f_url[0].replace(
+                            "http://ec2-3-135-87-107.us-east-2.compute.amazonaws.com/",
+            "");
+            String fullFileName = root + "/" + fileName;
+            try {
+                File fl = new File(fullFileName);
+                if (fl.exists()) {
+                    return fullFileName; // no need to download it again
+                }
+            }
+            catch(Exception ex){
+                Log.i("Info", "file " + fileName + " is being downloaded");
+
+            }
+
             URLConnection connection = url.openConnection();
             connection.connect();
             // getting file length
@@ -46,7 +63,7 @@ public class FullScreenVideoActivity extends AppCompatActivity {
 
             // Output stream to write file
 
-            OutputStream output = new FileOutputStream(root+"/1.mp4");
+            OutputStream output = new FileOutputStream(fullFileName);
             byte data[] = new byte[1024];
 
             long total = 0;
@@ -65,7 +82,7 @@ public class FullScreenVideoActivity extends AppCompatActivity {
             output.close();
             input.close();
 
-            return root+"/1.mp4";
+            return fullFileName;
         } catch (Exception e) {
             Log.e("Error: ", e.getMessage());
             return "";
