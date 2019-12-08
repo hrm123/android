@@ -36,7 +36,7 @@ public class WritingArFragment extends ArFragment {
     // application.
     private static final double MIN_OPENGL_VERSION = 3.0;
     // This is a pre-created database containing the sample image.
-    private static final String SAMPLE_IMAGE_DATABASE = "sample_database.imgdb";
+    private static final String SAMPLE_IMAGE_DATABASE = "images.imgdb";
 
 
     @Override

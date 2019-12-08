@@ -106,7 +106,7 @@ public class VideoRecordFragment extends Fragment
         homeViewModel =
                 ViewModelProviders.of(this).get(VRViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        fitToScanView = getActivity().findViewById(R.id.image_view_fit_to_scan);
+        fitToScanView = root.findViewById(R.id.image_view_fit_to_scan);
 
         if (!checkIsSupportedDeviceOrFinish(getActivity())) {
             return root;
