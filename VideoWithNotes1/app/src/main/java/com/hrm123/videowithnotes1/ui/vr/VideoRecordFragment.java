@@ -196,6 +196,7 @@ public class VideoRecordFragment extends Fragment
 
                 case TRACKING:
                     // Have to switch to UI Thread to update View.
+                    // fitToScanView = root.findViewById(R.id.image_view_fit_to_scan);
                     fitToScanView.setVisibility(View.GONE);
 
                     // Create a new anchor for newly found images.
