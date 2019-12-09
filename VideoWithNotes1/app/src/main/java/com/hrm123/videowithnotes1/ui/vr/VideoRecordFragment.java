@@ -76,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -198,6 +199,15 @@ public class VideoRecordFragment extends Fragment
                     // Have to switch to UI Thread to update View.
                     // fitToScanView = root.findViewById(R.id.image_view_fit_to_scan);
                     fitToScanView.setVisibility(View.GONE);
+
+                    Iterator<AugmentedImage>
+                            iter = augmentedImageMap.keySet().iterator();
+
+                    while(iter.hasNext()){
+                        AugmentedImage ai = iter.next();
+                        String nm = ai.getName();
+                        int i=0;
+                    }
 
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage)) {
