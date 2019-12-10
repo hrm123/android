@@ -41,7 +41,7 @@
   },
   samplers: [
     {
-      file: 'sampledata/models\\frame_base.png',
+      file: 'sampledata/models/frame_base.png',
       name: 'frame_base',
       pipeline_name: 'frame_base.png',
     },
