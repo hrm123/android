@@ -102,6 +102,13 @@ public class AugmentedImageNode extends AnchorNode {
         cornerNode = new Node();
         cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
+        final float scale =  Math.min(image.getExtentX(), image.getExtentZ()) * 0.1f;
+        Vector3 scaleVector = new Vector3(
+                scale,
+                scale * 0.1f,
+                scale
+        );
+        cornerNode.setLocalScale(scaleVector);
         cornerNode.setRenderable(ulCorner.getNow(null));
 
         // Upper right corner.
