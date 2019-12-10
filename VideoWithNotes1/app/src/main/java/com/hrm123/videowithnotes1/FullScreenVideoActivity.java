@@ -37,6 +37,12 @@ public class FullScreenVideoActivity extends AppCompatActivity {
             System.out.println("Downloading");
             URL url = new URL(f_url[0]);
 
+            if(f_url[0].indexOf(
+                    "amazonaws.com/"
+                    ) >0){
+                return f_url[0]; //no need to download bcos it is already local
+            }
+
             String fileName =
                     f_url[0].replace(
                             "http://ec2-3-135-87-107.us-east-2.compute.amazonaws.com/",
