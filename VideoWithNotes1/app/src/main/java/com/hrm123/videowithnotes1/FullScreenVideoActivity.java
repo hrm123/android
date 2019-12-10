@@ -32,16 +32,14 @@ public class FullScreenVideoActivity extends AppCompatActivity {
     protected String getFile(String... f_url) {
         int count;
         try {
-            String root = Environment.getExternalStorageDirectory().toString();
+            if(f_url[0].indexOf("amazonaws.com/") <=0){
+                return f_url[0]; //no need to download bcos it is already local
+            }
 
+            String root = Environment.getExternalStorageDirectory().toString();
             System.out.println("Downloading");
             URL url = new URL(f_url[0]);
 
-            if(f_url[0].indexOf(
-                    "amazonaws.com/"
-                    ) >0){
-                return f_url[0]; //no need to download bcos it is already local
-            }
 
             String fileName =
                     f_url[0].replace(

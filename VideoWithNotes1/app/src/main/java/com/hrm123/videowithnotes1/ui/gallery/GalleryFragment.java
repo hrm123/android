@@ -51,7 +51,7 @@ public class GalleryFragment extends Fragment {
                 MediaStore.Video.Media.DISPLAY_NAME,
                 MediaStore.Video.Media.SIZE };
         videocursor = getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                parameters, selection, selectionArgs, MediaStore.Video.Media.DATE_TAKEN + " DESC");
+                parameters, selection, selectionArgs, MediaStore.Video.Media.DATE_TAKEN + " ASC");
         int count = videocursor.getCount();
         int video_column_index = videocursor
                 .getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
