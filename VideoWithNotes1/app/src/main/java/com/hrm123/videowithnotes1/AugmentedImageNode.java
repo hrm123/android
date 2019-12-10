@@ -25,6 +25,8 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.ux.TransformableNode;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -76,13 +78,13 @@ public class AugmentedImageNode extends AnchorNode {
      * relative to the center of the image, which is the parent node of the corners.
      */
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
-    public void setImage(AugmentedImage image) {
+    public void setImage(AugmentedImage image, WritingArFragment frag) {
         this.image = image;
 
         // If any of the models are not loaded, then recurse when all are loaded.
         if (!ulCorner.isDone() || !urCorner.isDone() || !llCorner.isDone() || !lrCorner.isDone()) {
             CompletableFuture.allOf(ulCorner, urCorner, llCorner, lrCorner)
-                    .thenAccept((Void aVoid) -> setImage(image))
+                    .thenAccept((Void aVoid) -> setImage(image, frag))
                     .exceptionally(
                             throwable -> {
                                 Log.e(TAG, "Exception loading", throwable);
@@ -96,38 +98,63 @@ public class AugmentedImageNode extends AnchorNode {
         // Make the 4 corner nodes.
         Vector3 localPosition = new Vector3();
         Node cornerNode;
+        final float scale =  Math.min(image.getExtentX(), image.getExtentZ()) * 0.2f;
+
+        Vector3 scaleVector = new Vector3(
+                scale,
+                1,
+                scale
+        );
+        final int setScale = 1;
 
         // Upper left corner.
         localPosition.set(-0.5f * image.getExtentX(), 0.0f, -0.5f * image.getExtentZ());
-        cornerNode = new Node();
+        if(setScale == 1) {
+            cornerNode = new TransformableNode(frag.getTransformationSystem());
+            cornerNode.setLocalScale(scaleVector);
+        } else{
+            cornerNode = new Node();
+        }
         cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
-        final float scale =  Math.min(image.getExtentX(), image.getExtentZ()) * 0.1f;
-        Vector3 scaleVector = new Vector3(
-                scale,
-                scale * 0.1f,
-                scale
-        );
-        cornerNode.setLocalScale(scaleVector);
+
+        // cornerNode.setLocalScale(scaleVector);
         cornerNode.setRenderable(ulCorner.getNow(null));
 
         // Upper right corner.
         localPosition.set(0.5f * image.getExtentX(), 0.0f, -0.5f * image.getExtentZ());
-        cornerNode = new Node();
+        if(setScale == 1) {
+            cornerNode = new TransformableNode(frag.getTransformationSystem());
+            cornerNode.setLocalScale(scaleVector);
+        } else{
+            cornerNode = new Node();
+        }
         cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
         cornerNode.setRenderable(urCorner.getNow(null));
 
         // Lower right corner.
         localPosition.set(0.5f * image.getExtentX(), 0.0f, 0.5f * image.getExtentZ());
-        cornerNode = new Node();
+        if(setScale == 1) {
+            cornerNode = new TransformableNode(frag.getTransformationSystem());
+            cornerNode.setLocalScale(scaleVector);
+        } else{
+            cornerNode = new Node();
+        }
         cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
         cornerNode.setRenderable(lrCorner.getNow(null));
 
         // Lower left corner.
         localPosition.set(-0.5f * image.getExtentX(), 0.0f, 0.5f * image.getExtentZ());
-        cornerNode = new Node();
+
+
+        if(setScale == 1) {
+            cornerNode = new TransformableNode(frag.getTransformationSystem());
+            cornerNode.setLocalScale(scaleVector);
+        } else{
+            cornerNode = new Node();
+        }
         cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
         cornerNode.setRenderable(llCorner.getNow(null));

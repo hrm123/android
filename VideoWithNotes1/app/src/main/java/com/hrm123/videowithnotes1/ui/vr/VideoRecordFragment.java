@@ -212,7 +212,7 @@ public class VideoRecordFragment extends Fragment
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage)) {
                         AugmentedImageNode node = new AugmentedImageNode(this.getActivity());
-                        node.setImage(augmentedImage);
+                        node.setImage(augmentedImage, arFragment);
                         augmentedImageMap.put(augmentedImage, node);
                         arFragment.getArSceneView().getScene().addChild(node);
                     }
