@@ -200,19 +200,56 @@ public class VideoRecordFragment extends Fragment
                     // fitToScanView = root.findViewById(R.id.image_view_fit_to_scan);
                     fitToScanView.setVisibility(View.GONE);
 
-                    Iterator<AugmentedImage>
+
+                    /*
+                        Iterator<AugmentedImage>
                             iter = augmentedImageMap.keySet().iterator();
 
-                    while(iter.hasNext()){
-                        AugmentedImage ai = iter.next();
-                        String nm = ai.getName();
-                        int i=0;
-                    }
+                        while(iter.hasNext()){
+                            AugmentedImage ai = iter.next();
+                            String nm = ai.getName();
+                            int i=0;
+                        }
+                    */
+
+
 
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage)) {
                         AugmentedImageNode node = new AugmentedImageNode(this.getActivity());
                         node.setImage(augmentedImage, arFragment);
+                        node.setOnTapListener(new Node.OnTapListener() {
+                            @Override
+                            public void onTap(HitTestResult hitTestResult, MotionEvent motionEvent) {
+
+                                Log.d(TAG,"handleOnTouch");
+                                // First call ArFragment's listener to handle TransformableNodes.
+                                arFragment.onPeekTouch(hitTestResult, motionEvent);
+
+                                //We are only interested in the ACTION_UP events - anything else just return
+                                if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
+                                    return;
+                                }
+
+                                // Check for touching a Sceneform node
+                                if (hitTestResult.getNode() != null) {
+                                    Log.d(TAG,"handleOnTouch hitTestResult.getNode() != null");
+                                    Node hitNode = hitTestResult.getNode();
+
+                                    if (hitNode.getName().indexOf("infocard") != -1) {
+                                        Toast.makeText(VideoRecordFragment.this.getActivity(), "We've hit infocard!!", Toast.LENGTH_SHORT).show();
+                                        arFragment.getArSceneView().getScene().removeChild(hitNode);
+                                        AnchorNode hitNodeAnchor = (AnchorNode) hitNode;
+                                        if (hitNodeAnchor != null) {
+                                            ((AnchorNode) hitNode).getAnchor().detach();
+                                        }
+                                        hitNode.setParent(null);
+                                        hitNode = null;
+                                    }
+                                }
+
+                            }
+                        });
                         augmentedImageMap.put(augmentedImage, node);
                         arFragment.getArSceneView().getScene().addChild(node);
                     }
@@ -232,10 +269,10 @@ public class VideoRecordFragment extends Fragment
 
     @Override
     public void onLoadException(Throwable throwable) {
-        Toast toast = Toast.makeText(getContext(), "Unable to load andy renderable", Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(getContext(), "Unable to load frame", Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
-        Log.e(TAG, "Unable to load andy renderable", throwable);
+        Log.e(TAG, "Unable to load frame", throwable);
     }
 
 
@@ -321,7 +358,7 @@ public class VideoRecordFragment extends Fragment
 
     private List<FileName> GetFileList1(){
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "ec2-3-135-87-107.us-east-2.compute.amazonaws.com", 33333 )
+                "3.135.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -336,7 +373,7 @@ public class VideoRecordFragment extends Fragment
     private List<FileName> GetFileList(){
         /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "ec2-3-135-87-107.us-east-2.compute.amazonaws.com", 33333 )
+                "3.135.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -344,7 +381,7 @@ public class VideoRecordFragment extends Fragment
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 //"192.168.1.39", 33333 )
-                "ec2-3-135-87-107.us-east-2.compute.amazonaws.com", 33333)
+                "3.135.87.107", 33333)
                 .usePlaintext()
                 .build();
 
@@ -375,7 +412,7 @@ public class VideoRecordFragment extends Fragment
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 //"192.168.1.39", 33333 )
-                "ec2-3-135-87-107.us-east-2.compute.amazonaws.com", 33333)
+                "3.135.87.107", 33333)
                 .usePlaintext()
                 .build();
         final CountDownLatch finishLatch = new CountDownLatch(1);
@@ -451,7 +488,7 @@ public class VideoRecordFragment extends Fragment
                 && motionEvent.getPointerCount() == 1
         ) {
             long eventTime = motionEvent.getEventTime() - motionEvent.getDownTime();
-            if(eventTime < 100) { // if press was for less than 1 sec
+            if(eventTime < 1000) { // if press was for less than 1 sec
                 return;
             } else{
                 int i=0;
@@ -572,6 +609,41 @@ public class VideoRecordFragment extends Fragment
         //float[] rotation = {0,0,0,1};
         // Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
         infoCard.setLocalPosition(new Vector3(0f,0f,-1f));
+        infoCard.setOnTapListener(new Node.OnTapListener() {
+            @Override
+            public void onTap(HitTestResult hitTestResult, MotionEvent motionEvent) {
+
+                Log.d(TAG,"handleOnTouch");
+                // First call ArFragment's listener to handle TransformableNodes.
+                arFragment.onPeekTouch(hitTestResult, motionEvent);
+
+                //We are only interested in the ACTION_UP events - anything else just return
+                if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
+                    return;
+                }
+
+                // Check for touching a Sceneform node
+                if (hitTestResult.getNode() != null) {
+                    Log.d(TAG,"handleOnTouch hitTestResult.getNode() != null");
+                    Node hitNode = hitTestResult.getNode();
+
+                    if (hitNode.getName().indexOf("infocard") != -1) {
+                        Toast.makeText(VideoRecordFragment.this.getActivity(), "We've hit infocard!!", Toast.LENGTH_SHORT).show();
+                        arFragment.getArSceneView().getScene().removeChild(hitNode);
+                        /*
+                        AnchorNode hitNodeAnchor = (AnchorNode) hitNode;
+                        if (hitNodeAnchor != null) {
+                            ((AnchorNode) hitNode).getAnchor().detach();
+                        }
+
+                         */
+                        hitNode.setParent(null);
+                        hitNode = null;
+                    }
+                }
+
+            }
+        });
 
         ViewRenderable.builder()
                 .setView(getContext(), R.layout.name_info_v2)

@@ -32,7 +32,7 @@ public class FullScreenVideoActivity extends AppCompatActivity {
     protected String getFile(String... f_url) {
         int count;
         try {
-            if(f_url[0].indexOf("amazonaws.com/") <=0){
+            if(f_url[0].indexOf("amazonaws.com") <=0 && f_url[0].indexOf(".168.com") <=0){
                 return f_url[0]; //no need to download bcos it is already local
             }
 

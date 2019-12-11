@@ -92,61 +92,74 @@ public class AugmentedImageNode extends AnchorNode {
                             });
         }
 
+        final float xtntx = image.getExtentX();
+        final float xtntz = image.getExtentZ();
+
         // Set the anchor based on the center of the image.
         setAnchor(image.createAnchor(image.getCenterPose()));
 
         // Make the 4 corner nodes.
         Vector3 localPosition = new Vector3();
         Node cornerNode;
-        final float scale =  Math.min(image.getExtentX(), image.getExtentZ()) * 0.2f;
+        final float scale =  Math.min(
+                xtntx, xtntz) * 0.2f;
 
         Vector3 scaleVector = new Vector3(
                 scale,
                 1,
                 scale
         );
-        final int setScale = 1;
+        final int setScale = 0;
 
         // Upper left corner.
-        localPosition.set(-0.5f * image.getExtentX(), 0.0f, -0.5f * image.getExtentZ());
+        localPosition.set(-0.5f * xtntx, 0.0f, -0.5f * xtntx);
         if(setScale == 1) {
             cornerNode = new TransformableNode(frag.getTransformationSystem());
             cornerNode.setLocalScale(scaleVector);
         } else{
             cornerNode = new Node();
         }
-        cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
+        cornerNode.setParent(this);
+
 
         // cornerNode.setLocalScale(scaleVector);
         cornerNode.setRenderable(ulCorner.getNow(null));
+        cornerNode.setEnabled(true);
+
 
         // Upper right corner.
-        localPosition.set(0.5f * image.getExtentX(), 0.0f, -0.5f * image.getExtentZ());
+        localPosition.set(0.5f * xtntx, 0.0f, -0.5f * xtntx);
         if(setScale == 1) {
             cornerNode = new TransformableNode(frag.getTransformationSystem());
             cornerNode.setLocalScale(scaleVector);
         } else{
             cornerNode = new Node();
         }
-        cornerNode.setParent(this);
+
         cornerNode.setLocalPosition(localPosition);
+        cornerNode.setParent(this);
         cornerNode.setRenderable(urCorner.getNow(null));
+        cornerNode.setEnabled(true);
+
+
 
         // Lower right corner.
-        localPosition.set(0.5f * image.getExtentX(), 0.0f, 0.5f * image.getExtentZ());
+        localPosition.set(0.5f * xtntx, 0.0f, 0.5f * xtntx);
         if(setScale == 1) {
             cornerNode = new TransformableNode(frag.getTransformationSystem());
             cornerNode.setLocalScale(scaleVector);
         } else{
             cornerNode = new Node();
         }
-        cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
+        cornerNode.setParent(this);
         cornerNode.setRenderable(lrCorner.getNow(null));
+        cornerNode.setEnabled(true);
+
 
         // Lower left corner.
-        localPosition.set(-0.5f * image.getExtentX(), 0.0f, 0.5f * image.getExtentZ());
+        localPosition.set(-0.5f * xtntx, 0.0f, 0.5f * xtntx);
 
 
         if(setScale == 1) {
@@ -155,9 +168,10 @@ public class AugmentedImageNode extends AnchorNode {
         } else{
             cornerNode = new Node();
         }
-        cornerNode.setParent(this);
         cornerNode.setLocalPosition(localPosition);
+        cornerNode.setParent(this);
         cornerNode.setRenderable(llCorner.getNow(null));
+        cornerNode.setEnabled(true);
     }
 
     public AugmentedImage getImage() {
