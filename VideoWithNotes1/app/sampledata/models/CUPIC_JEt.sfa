@@ -1,0 +1,50 @@
+{
+  materials: [
+    {
+      name: 'Cube',
+      parameters: [
+        {
+          baseColor: 'JETSurface_Color',
+        },
+        {
+          baseColorTint: [
+            0.80000000000000004,
+            0.80000000000000004,
+            0.80000000000000004,
+            1,
+          ],
+        },
+        {
+          metallic: 0,
+        },
+        {
+          roughness: 1,
+        },
+        {
+          opacity: null,
+        },
+      ],
+      source: 'build/sceneform_sdk/default_materials/obj_material.sfm',
+    },
+  ],
+  model: {
+    attributes: [
+      'Position',
+      'TexCoord',
+      'Orientation',
+    ],
+    collision: {},
+    file: 'sampledata/models/CUPIC_JEt.obj',
+    name: 'CUPIC_JEt',
+    recenter: 'root',
+    scale: 0.007071,
+  },
+  samplers: [
+    {
+      file: 'sampledata/models\\JETSurface_Color.png',
+      name: 'JETSurface_Color',
+      pipeline_name: 'JETSurface_Color.png',
+    },
+  ],
+  version: '0.54:2',
+}

@@ -67,15 +67,15 @@ public class SlideshowFragment extends Fragment {
     private List<FileName> GetFileList(){
         /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.135.87.107", 33333 )
+                "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
          */
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.135.87.107", 33333 )
-                //"3.135.87.107", 33333)
+                "3.134.87.107", 33333 )
+                //"3.134.87.107", 33333)
                 .usePlaintext()
                 .build();
 

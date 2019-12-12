@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.TransformableNode;
@@ -48,7 +49,10 @@ public class AugmentedImageNode extends AnchorNode {
     private static CompletableFuture<ModelRenderable> urCorner;
     private static CompletableFuture<ModelRenderable> lrCorner;
     private static CompletableFuture<ModelRenderable> llCorner;
-
+    private static CompletableFuture<ModelRenderable> jet;
+    private static CompletableFuture<ModelRenderable> hab;
+    private static CompletableFuture<ModelRenderable> partyBalloon;
+    private static CompletableFuture<ModelRenderable> partyBalloon1;
     public AugmentedImageNode(Context context) {
         // Upon construction, start loading the models for the corners of the frame.
         if (ulCorner == null) {
@@ -68,6 +72,19 @@ public class AugmentedImageNode extends AnchorNode {
                     ModelRenderable.builder()
                             .setSource(context, Uri.parse("models/frame_lower_right.sfb"))
                             .build();
+            jet = ModelRenderable.builder()
+                    .setSource(context, Uri.parse("models/CUPIC_JEt.sfb"))
+                    .build();
+            hab = ModelRenderable.builder()
+                    .setSource(context, Uri.parse("models/Hot air balloon.sfb"))
+                    .build();
+            partyBalloon = ModelRenderable.builder()
+                    .setSource(context, Uri.parse("models/balloon.sfb"))
+                    .build();
+            partyBalloon1 = ModelRenderable.builder()
+                    .setSource(context, Uri.parse("models/model.sfb"))
+                    .build();
+
         }
     }
 
@@ -82,8 +99,12 @@ public class AugmentedImageNode extends AnchorNode {
         this.image = image;
 
         // If any of the models are not loaded, then recurse when all are loaded.
-        if (!ulCorner.isDone() || !urCorner.isDone() || !llCorner.isDone() || !lrCorner.isDone()) {
-            CompletableFuture.allOf(ulCorner, urCorner, llCorner, lrCorner)
+        if (!ulCorner.isDone() || !urCorner.isDone()
+                || !llCorner.isDone() || !lrCorner.isDone()
+                || !jet.isDone() || !hab.isDone() || !partyBalloon.isDone()
+        || !partyBalloon1.isDone()) {
+            CompletableFuture.allOf(ulCorner, urCorner, llCorner, lrCorner,
+                    jet, hab, partyBalloon, partyBalloon1)
                     .thenAccept((Void aVoid) -> setImage(image, frag))
                     .exceptionally(
                             throwable -> {
@@ -105,17 +126,41 @@ public class AugmentedImageNode extends AnchorNode {
                 xtntx, xtntz) * 0.2f;
 
         Vector3 scaleVector = new Vector3(
-                scale,
                 1,
-                scale
+                5,
+                1
         );
-        final int setScale = 0;
-
+        final int setScale = 1;
+        Boolean useHab = false;
         // Upper left corner.
         localPosition.set(-0.5f * xtntx, 0.0f, -0.5f * xtntx);
         if(setScale == 1) {
-            cornerNode = new TransformableNode(frag.getTransformationSystem());
-            cornerNode.setLocalScale(scaleVector);
+           // cornerNode = new TransformableNode(frag.getTransformationSystem());
+            SolarSettings solarSettings = new SolarSettings();
+            solarSettings.setOrbitSpeedMultiplier(10f);
+            solarSettings.setRotationSpeedMultiplier(2f);
+            Vector3 scaleVectorAirplane = new Vector3(
+                    0.01f,
+                    0.01f,
+                    0.01f
+            );
+            Vector3 scaleVectorHab = new Vector3(
+                    .1f,
+                    .1f,
+                    .1f
+            );
+            Vector3 current = scaleVectorAirplane;
+
+            if(useHab) {
+                current = scaleVectorHab;
+            }
+            cornerNode = new RotatingNode(solarSettings,true,true,0.047f);
+            ((RotatingNode)cornerNode).setDegreesPerSecond(4);
+        cornerNode.setLocalScale(current);
+                if(useHab) {
+                    cornerNode.setLocalRotation(new Quaternion(0, 0, 0, 1));
+                }
+
         } else{
             cornerNode = new Node();
         }
@@ -124,7 +169,13 @@ public class AugmentedImageNode extends AnchorNode {
 
 
         // cornerNode.setLocalScale(scaleVector);
-        cornerNode.setRenderable(ulCorner.getNow(null));
+       // cornerNode.setRenderable(ulCorner.getNow(null)); 123
+        if(useHab) {
+            cornerNode.setRenderable(partyBalloon.getNow(null));
+        } else{
+            // cornerNode.setRenderable(jet.getNow(null));
+            cornerNode.setRenderable(ulCorner.getNow(null));
+        }
         cornerNode.setEnabled(true);
 
 

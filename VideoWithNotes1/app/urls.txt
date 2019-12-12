@@ -5,6 +5,8 @@ http://ec2-3-135-87-107.us-east-2.compute.amazonaws.com/ar/vids.html
                        --output_db_path=/path/to/myimages.imgdb
 
 
-./Users/bestcoder/Downloads/arcore-android-sdk/tools/arcoreimg/macos/arcoreimg build-db --input_images_directory=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/assets  --output_db_path=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/images.imgdb
+./Users/bestcoder/Downloads/arcore-android-sdk/tools/arcoreimg/ma",cos/arcoreimg build-db --input_images_directory=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/assets  --output_db_path=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/images.imgdb
 
-/Users/bestcoder/Downloads/arcore-android-sdk/tools/arcoreimg/macos/arcoreimg build-db --input_image_list_path=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/images.txt  --output_db_path=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/images.imgdb
+               /Users/bestcoder/Downloads/arcore-android-sdk/tools/arcoreimg/macos/arcoreimg build-db --input_image_list_path=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/images.txt  --output_db_path=/Users/bestcoder/android1/VideoWithNotes1/app/src/main/images.imgdb
+
+               "3.134.87.107" 33333

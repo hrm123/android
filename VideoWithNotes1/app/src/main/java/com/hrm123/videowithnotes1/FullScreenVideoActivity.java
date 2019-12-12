@@ -14,14 +14,35 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.protobuf.ByteString;
+import com.hrm123.nextgenvideosvc.Chunk;
+import com.hrm123.nextgenvideosvc.FileListReq;
+import com.hrm123.nextgenvideosvc.FileReq;
+import com.hrm123.nextgenvideosvc.FileListResp;
+import com.hrm123.nextgenvideosvc.FileName;
+import com.hrm123.nextgenvideosvc.NextGenVideoServiceGrpc;
+import com.hrm123.nextgenvideosvc.SvcResponse;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.ServerCallStreamObserver;
+import io.grpc.stub.StreamObserver;
 
 public class FullScreenVideoActivity extends AppCompatActivity {
 
@@ -57,6 +78,10 @@ public class FullScreenVideoActivity extends AppCompatActivity {
 
             }
 
+
+            GetRecFromCloud(fileName,fullFileName );
+            return fullFileName;
+            /*
             URLConnection connection = url.openConnection();
             connection.connect();
             // getting file length
@@ -87,10 +112,132 @@ public class FullScreenVideoActivity extends AppCompatActivity {
             input.close();
 
             return fullFileName;
+
+             */
         } catch (Exception e) {
             Log.e("Error: ", e.getMessage());
             return "";
         }
+    }
+
+
+    private void GetRecFromCloud(String fileName, String localPath){
+
+        // videoPath ->   /storage/emulated/0/Pictures/Sceneform/Sample16ec31c13c1.mp4
+
+        /*
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                "172.17.198.241", 33333 )
+                .usePlaintext()
+                .build();
+        */
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                //"192.168.1.39", 33333 )
+                "3.134.87.107", 33333)
+                .usePlaintext()
+                .build();
+        final CountDownLatch finishLatch = new CountDownLatch(1);
+        String status = "processing";
+        // NextGenVideoSvcGrpc.NextGenVideoServiceStub stub = NextGenVideoSvcGrpc.newStub(channel);
+        NextGenVideoServiceGrpc.NextGenVideoServiceStub stub = NextGenVideoServiceGrpc.newStub(channel);
+        FileReq.Builder reqBuilder = FileReq.newBuilder();
+
+        try {
+        final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(localPath));
+
+
+
+        stub.getFile(reqBuilder.setFullfilename(fileName).build(), new ServerCallStreamObserver<Chunk>() {
+            int totalBytes = 0;
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public void setOnCancelHandler(Runnable onCancelHandler) {
+
+            }
+
+            @Override
+            public void setCompression(String compression) {
+
+            }
+
+            @Override
+            public boolean isReady() {
+                return false;
+            }
+
+            @Override
+            public void setOnReadyHandler(Runnable onReadyHandler) {
+
+            }
+
+            @Override
+            public void disableAutoInboundFlowControl() {
+
+            }
+
+            @Override
+            public void request(int count) {
+
+            }
+
+            @Override
+            public void setMessageCompression(boolean enable) {
+
+            }
+
+            @Override
+            public void onNext(Chunk value) {
+                byte[] buffer = value.getPayLoad().toByteArray();
+                totalBytes += buffer.length;
+                try {
+                    out.write(buffer);
+                }
+                catch(Exception ex){
+                    //ignore
+                    int i = 0;
+                }
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                try{
+                    out.flush();
+                    out.close();
+                    finishLatch.countDown();
+                }
+                catch(Exception ex){
+                    //ignore
+                    int i = 0;
+                }
+            }
+
+            @Override
+            public void onCompleted() {
+                try{
+                out.flush();
+                out.close();
+                    finishLatch.countDown();
+                }
+                catch(Exception ex){
+                    //ignore
+                    int i = 0;
+                }
+            }
+        });
+            finishLatch.await(2, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+
     }
 
     @Override

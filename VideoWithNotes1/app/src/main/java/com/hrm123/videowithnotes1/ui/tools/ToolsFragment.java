@@ -383,7 +383,7 @@ public class ToolsFragment extends Fragment
 
     private List<FileName> GetFileList1(){
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.135.87.107", 33333 )
+                "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -398,7 +398,7 @@ public class ToolsFragment extends Fragment
     private List<FileName> GetFileList(){
         /*
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                "3.135.87.107", 33333 )
+                "3.134.87.107", 33333 )
                 .usePlaintext()
                 .build();
 
@@ -406,7 +406,7 @@ public class ToolsFragment extends Fragment
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 //"192.168.1.39", 33333 )
-                "3.135.87.107", 33333)
+                "3.134.87.107", 33333)
                 .usePlaintext()
                 .build();
 
@@ -437,7 +437,7 @@ public class ToolsFragment extends Fragment
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
                 //"192.168.1.39", 33333 )
-                "3.135.87.107", 33333)
+                "3.134.87.107", 33333)
                 .usePlaintext()
                 .build();
         final CountDownLatch finishLatch = new CountDownLatch(1);

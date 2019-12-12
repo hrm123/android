@@ -138,6 +138,28 @@ sceneform.asset('sampledata/models/frame_lower_left.obj',
  */
 
 
+sceneform.asset('sampledata/models/balloon.obj',
+        'default',
+        'sampledata/models/balloon.sfa',
+        'src/main/assets/balloon')
+
+
+sceneform.asset('sampledata/models/model.obj',
+        'default',
+        'sampledata/models/model.sfa',
+        'src/main/assets/model')
+
+
+sceneform.asset('sampledata/models/Hot air balloon.obj',
+        'default',
+        'sampledata/models/Hot air balloon.sfa',
+        'src/main/assets/Hot air balloon')
+
+sceneform.asset('sampledata/models/CUPIC_JEt.obj',
+        'default',
+        'sampledata/models/CUPIC_JEt.sfa',
+        'src/main/assets/CUPIC_JEt')
+
 sceneform.asset('sampledata/models/frame_lower_left.obj',
         'default',
         'sampledata/models/frame_lower_left.sfa',
