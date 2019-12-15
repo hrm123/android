@@ -132,7 +132,8 @@ public class AugmentedImageNode extends AnchorNode {
         String imgName = image.getName();
         Anchor anchr =   image.createAnchor(image.getCenterPose());
         setAnchor(anchr);
-        Node infoNode =renderInfoCard("Om Sri Ganesha", anchr , frag);
+        String extendedInfo = imgName.equals("vigneswara") ? "Om Sri Ganesha" : "AWESOME IDEAS!!!";
+        Node infoNode =renderInfoCard(extendedInfo, anchr , frag);
 
         // Make the 4 corner nodes.
         Vector3 localPosition = new Vector3();
