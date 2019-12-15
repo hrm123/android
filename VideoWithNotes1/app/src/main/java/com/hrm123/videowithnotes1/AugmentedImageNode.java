@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.AugmentedImage;
+import com.google.ar.core.Pose;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
@@ -128,6 +129,7 @@ public class AugmentedImageNode extends AnchorNode {
         final float xtntz = image.getExtentZ();
 
         // Set the anchor based on the center of the image.
+        String imgName = image.getName();
         Anchor anchr =   image.createAnchor(image.getCenterPose());
         setAnchor(anchr);
         Node infoNode =renderInfoCard("Om Sri Ganesha", anchr , frag);
@@ -208,10 +210,13 @@ public class AugmentedImageNode extends AnchorNode {
         cornerNode.setEnabled(true);
         */
 
+        // Uses z axis and 180 degrees to return new quaternion
+
         localPosition.set(0.5f * xtntx, 0.0f, -0.5f * xtntx);
         infoNode.setLocalPosition(localPosition);
-        infoNode.setParent(this);
-        infoNode.setEnabled(true);
+
+        //infoNode.setParent(this);
+        //infoNode.setEnabled(true);
 
 
 
@@ -250,17 +255,20 @@ public class AugmentedImageNode extends AnchorNode {
 
     private Node renderInfoCard(String txt, Anchor anchor, WritingArFragment arFragment){
 
+        //Pose p = new Pose(new float[] {0, 0, 0, 0}, new float[] {0, 0, 0, 0});
         AnchorNode anchorNode = new AnchorNode(anchor);
+        //AnchorNode anchorNode = new AnchorNode(arFragment.getArSceneView().getSession().createAnchor(p));
         anchorNode.setParent(arFragment.getArSceneView().getScene());
         Node infoCard = new Node();
         infoCard.setName("infocard" + (new Date()).getTime());
         //infoCard.isTopLevel();
         infoCard.setParent(anchorNode);
         infoCard.setEnabled(true);
+        infoCard.setLocalRotation(Quaternion.axisAngle(new Vector3(1f, 0, 0), -90));
         //float[] pos = { 0,0,-1 };
         //float[] rotation = {0,0,0,1};
         // Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
-        infoCard.setLocalPosition(new Vector3(0f,0f,-1f));
+        //infoCard.setLocalPosition(new Vector3(0f,0f,-1f));
 
         ViewRenderable.builder()
                 .setView(_context, R.layout.name_info_v2)
