@@ -17,10 +17,12 @@ package com.hrm123.videowithnotes1;
  * limitations under the License.
  */
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
+import com.google.ar.sceneform.math.QuaternionEvaluator;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
@@ -254,6 +257,39 @@ public class AugmentedImageNode extends AnchorNode {
     }
 
 
+    private static ObjectAnimator createAnimator() {
+
+        // Quaternion orientation1 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 0);
+        //Quaternion orientation2 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 120);
+        // Quaternion orientation3 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 240);
+        // Quaternion orientation4 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 360);
+         Quaternion orientation1 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -10);
+        Quaternion orientation2 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -30);
+         Quaternion orientation3 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -60);
+         Quaternion orientation4 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -90);
+
+
+        ObjectAnimator orbitAnimation = new ObjectAnimator();
+
+        orbitAnimation.setObjectValues(orientation1, orientation2, orientation3, orientation4);
+
+        // Next, give it the localRotation property.
+        orbitAnimation.setPropertyName("localRotation");
+
+        // Use Sceneform's QuaternionEvaluator.
+        orbitAnimation.setEvaluator(new QuaternionEvaluator());
+
+        //  Allow orbitAnimation to repeat forever
+        // orbitAnimation.setRepeatCount(ObjectAnimator.INFINITE);
+        orbitAnimation.setDuration(10000);
+        orbitAnimation.setRepeatCount(10);
+        orbitAnimation.setRepeatMode(ObjectAnimator.REVERSE);
+        orbitAnimation.setInterpolator(new LinearInterpolator());
+        orbitAnimation.setAutoCancel(true);
+
+        return orbitAnimation;
+    }
+
     private Node renderInfoCard(String txt, Anchor anchor, WritingArFragment arFragment){
 
         //Pose p = new Pose(new float[] {0, 0, 0, 0}, new float[] {0, 0, 0, 0});
@@ -265,7 +301,10 @@ public class AugmentedImageNode extends AnchorNode {
         //infoCard.isTopLevel();
         infoCard.setParent(anchorNode);
         infoCard.setEnabled(true);
-        infoCard.setLocalRotation(Quaternion.axisAngle(new Vector3(1f, 0, 0), -90));
+        ObjectAnimator anim = createAnimator();
+        anim.setTarget(infoCard);
+        anim.start();
+         //infoCard.setLocalRotation(Quaternion.axisAngle(new Vector3(1f, 0, 0), -90));
         //float[] pos = { 0,0,-1 };
         //float[] rotation = {0,0,0,1};
         // Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
