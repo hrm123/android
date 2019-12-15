@@ -180,7 +180,10 @@ public class VideoRecordFragment extends Fragment
         Frame frame = arFragment.getArSceneView().getArFrame();
 
         // If there is no frame or ARCore is not tracking yet, just return.
-        if (frame == null || frame.getCamera().getTrackingState() != TrackingState.TRACKING) {
+        if (frame == null || (
+                frame.getCamera().getTrackingState() != TrackingState.TRACKING
+        )
+        ) {
             return;
         }
 
@@ -216,6 +219,9 @@ public class VideoRecordFragment extends Fragment
 
                     // Create a new anchor for newly found images.
                     if (!augmentedImageMap.containsKey(augmentedImage)) {
+
+                        int aiIndex = augmentedImage.getIndex();
+
                         AugmentedImageNode node = new AugmentedImageNode(this.getActivity());
                         node.setImage(augmentedImage, arFragment);
                         node.setOnTapListener(new Node.OnTapListener() {

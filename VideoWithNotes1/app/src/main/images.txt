@@ -1,2 +1,3 @@
 vigneswara|/Users/bestcoder/android1/VideoWithNotes1/app/src/main/assets/ganesha.jpg|0.2
 cw19|/Users/bestcoder/android1/VideoWithNotes1/app/src/main/assets/cw19_1.jpg|1
+amzn|/Users/bestcoder/android1/VideoWithNotes1/app/src/main/assets/amzn.jpg|0.1

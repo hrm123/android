@@ -20,14 +20,23 @@ package com.hrm123.videowithnotes1;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.ar.core.Anchor;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.math.Quaternion;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.ar.sceneform.ux.TransformableNode;
+import com.hrm123.videowithnotes1.ui.vr.VideoRecordFragment;
 
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -53,8 +62,10 @@ public class AugmentedImageNode extends AnchorNode {
     private static CompletableFuture<ModelRenderable> hab;
     private static CompletableFuture<ModelRenderable> partyBalloon;
     private static CompletableFuture<ModelRenderable> partyBalloon1;
+    Context _context = null;
     public AugmentedImageNode(Context context) {
         // Upon construction, start loading the models for the corners of the frame.
+        _context = context;
         if (ulCorner == null) {
             ulCorner =
                     ModelRenderable.builder()
@@ -117,7 +128,9 @@ public class AugmentedImageNode extends AnchorNode {
         final float xtntz = image.getExtentZ();
 
         // Set the anchor based on the center of the image.
-        setAnchor(image.createAnchor(image.getCenterPose()));
+        Anchor anchr =   image.createAnchor(image.getCenterPose());
+        setAnchor(anchr);
+        Node infoNode =renderInfoCard("Om Sri Ganesha", anchr , frag);
 
         // Make the 4 corner nodes.
         Vector3 localPosition = new Vector3();
@@ -130,7 +143,7 @@ public class AugmentedImageNode extends AnchorNode {
                 5,
                 1
         );
-        final int setScale = 1;
+        final int setScale = 0;
         Boolean useHab = false;
         // Upper left corner.
         localPosition.set(-0.5f * xtntx, 0.0f, -0.5f * xtntx);
@@ -179,6 +192,7 @@ public class AugmentedImageNode extends AnchorNode {
         cornerNode.setEnabled(true);
 
 
+        /*
         // Upper right corner.
         localPosition.set(0.5f * xtntx, 0.0f, -0.5f * xtntx);
         if(setScale == 1) {
@@ -188,10 +202,18 @@ public class AugmentedImageNode extends AnchorNode {
             cornerNode = new Node();
         }
 
-        cornerNode.setLocalPosition(localPosition);
+         cornerNode.setLocalPosition(localPosition);
         cornerNode.setParent(this);
         cornerNode.setRenderable(urCorner.getNow(null));
         cornerNode.setEnabled(true);
+        */
+
+        localPosition.set(0.5f * xtntx, 0.0f, -0.5f * xtntx);
+        infoNode.setLocalPosition(localPosition);
+        infoNode.setParent(this);
+        infoNode.setEnabled(true);
+
+
 
 
 
@@ -223,6 +245,45 @@ public class AugmentedImageNode extends AnchorNode {
         cornerNode.setParent(this);
         cornerNode.setRenderable(llCorner.getNow(null));
         cornerNode.setEnabled(true);
+    }
+
+
+    private Node renderInfoCard(String txt, Anchor anchor, WritingArFragment arFragment){
+
+        AnchorNode anchorNode = new AnchorNode(anchor);
+        anchorNode.setParent(arFragment.getArSceneView().getScene());
+        Node infoCard = new Node();
+        infoCard.setName("infocard" + (new Date()).getTime());
+        //infoCard.isTopLevel();
+        infoCard.setParent(anchorNode);
+        infoCard.setEnabled(true);
+        //float[] pos = { 0,0,-1 };
+        //float[] rotation = {0,0,0,1};
+        // Anchor anchor =  session.createAnchor(new Pose(pos, rotation));
+        infoCard.setLocalPosition(new Vector3(0f,0f,-1f));
+
+        ViewRenderable.builder()
+                .setView(_context, R.layout.name_info_v2)
+                .build()
+                .thenAccept(
+                        (note) -> {
+                            infoCard.setRenderable(note);
+                            TextView textView =  note.getView().findViewById(R.id.nameInfoCard);
+
+
+                            //textView.setText("rammohan holagundi");
+                            textView.setText(txt);
+                            // int alpha = 70;
+                            //textView.setBackgroundColor(Color.argb(alpha, 132,154,201));
+                            // textView.setTextColor(ColorStateList.valueOf(Color.MAGENTA));
+
+                        })
+                .exceptionally(
+                        (throwable) -> {
+                            throw new AssertionError("Could not load plane card view.", throwable);
+                        });
+
+        return infoCard;
     }
 
     public AugmentedImage getImage() {
