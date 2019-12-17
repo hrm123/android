@@ -263,8 +263,8 @@ public class AugmentedImageNode extends AnchorNode {
         //Quaternion orientation2 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 120);
         // Quaternion orientation3 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 240);
         // Quaternion orientation4 = Quaternion.axisAngle(new Vector3(0.0f, 1.0f, 0.0f), 360);
-         Quaternion orientation1 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -10);
-        Quaternion orientation2 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -30);
+         Quaternion orientation1 = Quaternion.axisAngle(new Vector3(1f, 0, 0), 90);
+        Quaternion orientation2 = Quaternion.axisAngle(new Vector3(1f, 0, 0), 60);
          Quaternion orientation3 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -60);
          Quaternion orientation4 = Quaternion.axisAngle(new Vector3(1f, 0, 0), -90);
 
@@ -282,8 +282,8 @@ public class AugmentedImageNode extends AnchorNode {
         //  Allow orbitAnimation to repeat forever
         // orbitAnimation.setRepeatCount(ObjectAnimator.INFINITE);
         orbitAnimation.setDuration(10000);
-        orbitAnimation.setRepeatCount(10);
-        orbitAnimation.setRepeatMode(ObjectAnimator.REVERSE);
+        orbitAnimation.setRepeatCount(0);
+        orbitAnimation.setRepeatMode(ObjectAnimator.RESTART);
         orbitAnimation.setInterpolator(new LinearInterpolator());
         orbitAnimation.setAutoCancel(true);
 
