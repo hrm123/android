@@ -136,7 +136,7 @@ public class AugmentedImageNode extends AnchorNode {
         Anchor anchr =   image.createAnchor(image.getCenterPose());
         setAnchor(anchr);
         String extendedInfo = imgName.equals("vigneswara") ? "Om Sri Ganesha" : "AWESOME IDEAS!!!";
-        Node infoNode =renderInfoCard(extendedInfo, anchr , frag);
+        Node infoNode =renderInfoCard(extendedInfo, anchr , frag, xtntx, xtntz);
 
         // Make the 4 corner nodes.
         Vector3 localPosition = new Vector3();
@@ -216,8 +216,6 @@ public class AugmentedImageNode extends AnchorNode {
 
         // Uses z axis and 180 degrees to return new quaternion
 
-        localPosition.set(0.5f * xtntx, 0.0f, -0.5f * xtntx);
-        infoNode.setLocalPosition(localPosition);
 
         //infoNode.setParent(this);
         //infoNode.setEnabled(true);
@@ -290,7 +288,16 @@ public class AugmentedImageNode extends AnchorNode {
         return orbitAnimation;
     }
 
-    private Node renderInfoCard(String txt, Anchor anchor, WritingArFragment arFragment){
+    private Node renderInfoCard(String txt, Anchor anchor, WritingArFragment arFragment
+            , float xtntx, float xtntz){
+        float imageWidth = 1f; //  = 1m
+        float imageHeight = 0.66f; // = 66 cm
+
+        float  scaledWidth = imageWidth / xtntx;
+        float scaledHeight = imageHeight / xtntz;
+
+// scale the Node
+
 
         //Pose p = new Pose(new float[] {0, 0, 0, 0}, new float[] {0, 0, 0, 0});
         AnchorNode anchorNode = new AnchorNode(anchor);
@@ -298,11 +305,18 @@ public class AugmentedImageNode extends AnchorNode {
         anchorNode.setParent(arFragment.getArSceneView().getScene());
         Node infoCard = new Node();
         infoCard.setName("infocard" + (new Date()).getTime());
+
+        // infoCard.setLocalScale(new Vector3(scaledWidth, scaledHeight, scaledWidth));
+
         //infoCard.isTopLevel();
         infoCard.setParent(anchorNode);
         infoCard.setEnabled(true);
         ObjectAnimator anim = createAnimator();
         anim.setTarget(infoCard);
+        Vector3  localPosition = new Vector3(0.5f * xtntx, 0.0f, -0.5f * xtntz); //upper left corner
+
+        infoCard.setLocalPosition(localPosition);
+
         anim.start();
          //infoCard.setLocalRotation(Quaternion.axisAngle(new Vector3(1f, 0, 0), -90));
         //float[] pos = { 0,0,-1 };
